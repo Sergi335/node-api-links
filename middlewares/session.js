@@ -21,7 +21,7 @@ export const attachCsrfToken = (route, cookieName, csrfToken) => {
     //   domain: 'localhost', // Ajusta según tu dominio de la aplicación React
     //   path: '/' // Ajusta según tus necesidades
     // })
-    req.csrfToken = csrfToken
+    // req.csrfToken = csrfToken
     res.send({ csrfToken })
     next()
   }
