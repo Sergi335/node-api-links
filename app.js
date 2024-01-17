@@ -9,7 +9,7 @@ import { storageRouter } from './routes/storage/storage.js'
 import { attachCsrfToken } from './middlewares/session.js'
 import { cors } from './middlewares/cors.js'
 import { checkUserSession } from './controllers/auth/authController.js'
-import { dbConnect } from './config/mongodB.js'
+import { dbConnect } from './config/mongodb.js'
 import { searchController } from './controllers/search/searchController.js'
 
 const app = Express()
