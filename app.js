@@ -15,12 +15,12 @@ import { searchController } from './controllers/search/searchController.js'
 const app = Express()
 const PORT = process.env.PORT || 3000
 
+app.use('*', cors)
 app.get('/', attachCsrfToken('/', 'csrfToken', (Math.random() * 100000000000000000).toString()), (req, res) => {
   res.send('Hello World')
 })
 app.use(Express.json())
 app.use(cookieParser())
-app.use('*', cors)
 app.use('/auth', authRouter)
 app.use('/links', checkUserSession, linksRouter)
 app.use('/columns', checkUserSession, columnsRouter)
