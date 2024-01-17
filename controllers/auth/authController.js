@@ -129,12 +129,12 @@ export const sessionCookieMiddleware = async (req, res, next) => {
     // console.log(req.cookies)
     // Get the ID token passed and the CSRF token.
     const idToken = req.body.idToken.toString()
-    const csrfToken = req.body.csrfToken.toString()
+    // const csrfToken = req.body.csrfToken.toString()
     // Guard against CSRF attacks.
-    if (csrfToken !== req.cookies.csrfToken) {
-      res.status(401).send('NO COINCIDE UNAUTHORIZED REQUEST!')
-      return
-    }
+    // if (csrfToken !== req.csrfToken) {
+    //   res.status(401).send('NO COINCIDE UNAUTHORIZED REQUEST!')
+    //   return
+    // }
     // Set session expiration to 5 days.
     const expiresIn = 60 * 60 * 24 * 5 * 1000
     // Create the session cookie. This will also verify the ID token in the process.

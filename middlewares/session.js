@@ -14,14 +14,15 @@ export const attachCsrfToken = (route, cookieName, csrfToken) => {
     // const isSecure = req.secure || (req.headers['x-forwarded-proto'] === 'https')
     // const sameSiteConfig = isSecure ? 'None' : 'Lax' // Puedes ajustar esto según tus necesidades
 
-    res.cookie(cookieName, csrfToken, {
-      sameSite: 'None',
-      secure: true,
-      httpOnly: false,
-      domain: 'neon-dragon-b1bc62.netlify.app', // Ajusta según tu dominio de la aplicación React
-      path: '/' // Ajusta según tus necesidades
-    })
-
+    // res.cookie(cookieName, csrfToken, {
+    //   sameSite: 'None',
+    //   secure: true,
+    //   httpOnly: false,
+    //   domain: 'localhost', // Ajusta según tu dominio de la aplicación React
+    //   path: '/' // Ajusta según tus necesidades
+    // })
+    req.csrfToken = csrfToken
+    res.send({ csrfToken })
     next()
   }
 }
