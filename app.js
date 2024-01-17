@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000
 
 app.use('*', cors)
 app.get('/', attachCsrfToken('/', 'csrfToken', (Math.random() * 100000000000000000).toString()), (req, res) => {
-  res.send('Hello World')
+  // res.send('Hello World')
 })
 app.use(Express.json())
 app.use(cookieParser())
