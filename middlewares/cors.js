@@ -1,7 +1,7 @@
 export function cors (req, res, next) {
   const origin = req.header('origin')
 
-  const ACCEPTED_ORIGINS = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175']
+  const ACCEPTED_ORIGINS = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'https://neon-dragon-b1bc62.netlify.app/']
 
   if (ACCEPTED_ORIGINS.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin)
