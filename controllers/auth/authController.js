@@ -7,7 +7,7 @@ const serviceAccount = {
   type: process.env.FBADMIN_TYPE,
   project_id: process.env.FBADMIN_PROJECT_ID.toString(),
   private_key_id: process.env.FBADMIN_PRIVATE_KEY_ID.toString(),
-  private_key: process.env.FBADMIN_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  private_key: process.env.FBADMIN_PRIVATE_KEY.toString().replace(/\\n/g, '\n'),
   client_email: process.env.FBADMIN_CLIENT_EMAIL.toString(),
   client_id: process.env.FBADMIN_CLIENT_ID.toString(),
   auth_uri: process.env.FBADMIN_AUTH_URI.toString(),
