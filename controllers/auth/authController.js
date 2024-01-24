@@ -146,7 +146,7 @@ export const sessionCookieMiddleware = async (req, res, next) => {
       .then(
         (sessionCookie) => {
           // Set cookie policy for session cookie.
-          const options = { maxAge: expiresIn, httpOnly: true, secure: false }
+          const options = { maxAge: expiresIn, httpOnly: true, secure: false, sameSite: 'None' }
           console.log('Cookie creada con éxito')
           res.cookie('session', sessionCookie, options)
           next()
