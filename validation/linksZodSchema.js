@@ -6,12 +6,7 @@ const linkZodSchema = z.object({
     invalid_type_error: 'Name must be a string'
   }).min(1).max(250).default('Name'),
   description: z.string().max(250).default('Description').optional(),
-  URL: z.string({
-    required_error: 'URL is required'
-  }).url({
-    invalid_type_error: 'URL must be a valid URL',
-    message: 'URL must be a valid URL'
-  }),
+  URL: z.string().optional(),
   imgURL: z.string().url(),
   escritorio: z.string().min(1).max(250).default('Desktop'),
   panel: z.string().min(1).max(250).default('Panel'),
