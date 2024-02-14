@@ -30,8 +30,6 @@ app.get('/search', checkUserSession, searchController.searchLinks)
 
 dbConnect()
 
-console.log(process.env.NODE_ENV)
-
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)
 })
