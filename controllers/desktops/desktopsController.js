@@ -1,9 +1,13 @@
 import { desktopModel } from '../../models/desktopModel.js'
 import { validateDesktop, validatePartialDesktop } from '../../validation/desktopsZodSchema.js'
 
-export class desktopController {
-  static async getAllDesktops (req, res) {
-    const user = req.user.name
+export class DesktopController {
+  constructor ({ user }) {
+    this.user = user
+  }
+
+  getAllDesktops = async (req, res) => {
+    const user = req.user?.name ?? this.user
     const data = await desktopModel.getAllDesktops({ user })
     if (!data.error) {
       return res.status(200).json({ status: 'success', data })
@@ -12,7 +16,7 @@ export class desktopController {
     }
   }
 
-  static async editDesktop (req, res) {
+  editDesktop = async (req, res) => {
     const user = req.user.name
     const name = req.body.name
     const newName = req.body.newName
@@ -33,8 +37,8 @@ export class desktopController {
     }
   }
 
-  static async createDesktop (req, res) {
-    const user = req.user.name
+  createDesktop = async (req, res) => {
+    const user = req.user?.name ?? this.user
     const { name, displayName, orden } = req.body
     const validatedDesk = validateDesktop({ name, displayName, orden, user })
     if (validatedDesk.success === false) {
@@ -44,15 +48,15 @@ export class desktopController {
       return res.status(400).json({ status: 'fail', message: errorsMessageArray })
     }
     const data = await desktopModel.createDesktop({ user, name, displayName, orden })
-    if (data) { // if no hay error
-      return res.status(200).json({ status: 'success', data })
+    if (!data.error) {
+      return res.status(201).json({ status: 'success', data })
     } else {
-      return res.status(500).send('Error')
+      return res.status(500).json({ status: 'fail', data })
     }
   }
 
-  static async deleteDesktop (req, res) {
-    const user = req.user.name
+  deleteDesktop = async (req, res) => {
+    const user = req.user?.name ?? this.user
     const name = req.body.name
     const data = await desktopModel.deleteDesktop({ user, name })
     if (data) {
@@ -62,7 +66,7 @@ export class desktopController {
     }
   }
 
-  static async setDesktopsOrder (req, res) {
+  setDesktopsOrder = async (req, res) => {
     const user = req.user.name
     const elementos = req.body.names
     const data = await desktopModel.setDesktopsOrder({ user, elementos })
@@ -73,14 +77,14 @@ export class desktopController {
     }
   }
 
-  static async fixProperties (req, res) {
+  fixProperties = async (req, res) => {
     const newUser = req.body.newUser
     const user = req.body.user
     const data = await desktopModel.fixProperties({ user, newUser })
     res.send(data)
   }
 
-  static async testDummyData (req, res) {
+  testDummyData = async (req, res) => {
     // const newUser = req.body.newUser
     const user = req.body.user
     const data = await desktopModel.createDummyContent({ user })

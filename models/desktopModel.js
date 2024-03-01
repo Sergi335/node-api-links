@@ -1,8 +1,8 @@
-import escritorio from '../models/schemas/desktopSchema.js'
+import { createRequire } from 'node:module'
 import columna from '../models/schemas/columnSchema.js'
+import escritorio from '../models/schemas/desktopSchema.js'
 import link from '../models/schemas/linkSchema.js'
 import { userModel } from './userModel.js'
-import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
 const dummyData = require('../utils/dummyData.json')
 
@@ -59,7 +59,6 @@ export class desktopModel {
       return err
     } else {
       await escritorio.create({ user, name, displayName, orden })
-      // const lista = await escritorio.find({ user, hidden: false || undefined }).sort({ orden: 1 })
       const lista = await escritorio.find({ user }).sort({ orden: 1 })
       return lista
     }

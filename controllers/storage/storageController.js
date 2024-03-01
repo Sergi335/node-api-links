@@ -1,12 +1,12 @@
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject, listAll, getMetadata } from 'firebase/storage'
 import { initializeApp } from 'firebase/app'
-import { desktopModel } from '../../models/desktopModel.js'
+import { deleteObject, getDownloadURL, getMetadata, getStorage, listAll, ref, uploadBytes } from 'firebase/storage'
 import { columnModel } from '../../models/columnModel.js'
+import { desktopModel } from '../../models/desktopModel.js'
 import { linkModel } from '../../models/linkModel.js'
-import { userModel } from '../../models/userModel.js'
-import escritorio from '../../models/schemas/desktopSchema.js'
 import columna from '../../models/schemas/columnSchema.js'
+import escritorio from '../../models/schemas/desktopSchema.js'
 import link from '../../models/schemas/linkSchema.js'
+import { userModel } from '../../models/userModel.js'
 
 const firebaseConfig = {
   apiKey: process.env.FB_API_KEY,
@@ -41,7 +41,7 @@ export class storageController {
     }
   }
 
-  // Validar?
+  // Validar? // enviar nombre para poder borrar
   static async uploadImage (req, res) {
     const file = req.file
     const user = req.user.name
@@ -56,10 +56,24 @@ export class storageController {
       const imagesRef = ref(storage, `${user}/images/linkImages`)
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
       const extension = file.originalname.split('.').pop()
+      // ---- //
+      const list = await listAll(imagesRef)
+      const { items } = list
+      // let sum
+      const iconsPromises = items.map(async (back) => ({
+        url: await getDownloadURL(back),
+        tamaño: (await getMetadata(back)).size
+      }))
+      const icons = await Promise.all(iconsPromises)
+      const size = icons.reduce((acc, cur) => acc + cur.tamaño, 0)
+      console.log('🚀 ~ storageController ~ uploadImage ~ icons:', size)
+      // ----//
       // El lugar y el nombre donde se guardará el archivo
       const imageRef = ref(imagesRef, `${uniqueSuffix}.${extension}`)
       const snapshot = await uploadBytes(imageRef, file.buffer)
       const downloadURL = await getDownloadURL(snapshot.ref)
+      const lastImageSize = (await getMetadata(snapshot.ref)).size
+      console.log('🚀 ~ storageController ~ uploadImage ~ lastImageSize:', lastImageSize)
       try {
         const resultadoDb = await linkModel.setImagesInDb(downloadURL, user, linkId)
         res.send(resultadoDb)
@@ -71,6 +85,7 @@ export class storageController {
       res.status(500).send({ error: 'Error al subir el archivo' })
     }
   }
+  // borrar por nombre -> revisar resto
 
   static async deleteImage (req, res) {
     const user = req.user.name
@@ -96,7 +111,7 @@ export class storageController {
     } catch (error) {
       console.error('Error al eliminar la imagen:', error)
       if (error.code === 'storage/invalid-url' || error.code === 'storage/object-not-found') {
-        await linkModel.deleteImageOnDb(imageUrl, user, linkId)
+        await linkModel.deleteImageOnDb(imageUrl, user, linkId) // Ojo esto esta por error
       }
       res.status(500).send({ error: error.code })
     }
@@ -127,7 +142,7 @@ export class storageController {
       const downloadURL = await getDownloadURL(snapshot.ref)
       try {
         await linkModel.setLinkImgInDb(downloadURL, user, linkId)
-        res.send({ message: '¡Archivo o blob subido!', url: downloadURL })
+        res.send({ message: '¡Archivo o blob subido!', url: downloadURL, name: `${uniqueSuffix}.${extension}` })
       } catch (error) {
         res.send(error)
       }
@@ -140,12 +155,14 @@ export class storageController {
   static async deleteIcon (req, res) {
     const user = req.user.name
     if (user) {
-      const imageUrl = req.body.image
+      const imageName = req.body.image
+      console.log('🚀 ~ storageController ~ deleteIcon ~ imageUrl:', imageName)
       try {
         // Construye la referencia a la imagen en Storage
-        const imageRef = ref(storage, imageUrl)
+        const imageRef = ref(storage, `${user}/images/icons/${imageName}`)
         // Borra el archivo
-        await deleteObject(imageRef)
+        const deleteResult = await deleteObject(imageRef)
+        console.log('🚀 ~ storageController ~ deleteIcon ~ deleteResult:', deleteResult)
         res.send({ message: 'Imagen eliminada exitosamente' })
       } catch (error) {
         res.status(500).send({ error: error.code })
@@ -156,18 +173,29 @@ export class storageController {
   }
 
   static async getLinkIcons (req, res) {
-    // const user = req.user.name
+    const user = req.user.name
+    // De la carpeta 'SergioSR/images/icons' tira toda la app
+    // esto es facil de cambiar
     try {
-      const fileRef = ref(storage, 'SergioSR/images/icons')
-      const list = await listAll(fileRef)
-      const { items } = list
-
-      const iconsPromises = items.map(async (back) => ({
+      const defaultIconsRef = ref(storage, 'SergioSR/images/icons')
+      const defaultList = await listAll(defaultIconsRef)
+      const { items } = defaultList
+      const defaultIconsPromises = items.map(async (back) => ({
         url: await getDownloadURL(back),
-        nombre: (await getMetadata(back)).name
+        nombre: (await getMetadata(back)).name,
+        clase: 'default'
       }))
+      const icons = await Promise.all(defaultIconsPromises)
 
-      const icons = await Promise.all(iconsPromises)
+      const userIconsList = await listAll(ref(storage, `${user}/images/icons`))
+      const userIconsPromises = userIconsList.items.map(async (back) => ({
+        url: await getDownloadURL(back),
+        nombre: (await getMetadata(back)).name,
+        clase: 'user'
+      }))
+      const userIcons = await Promise.all(userIconsPromises)
+      icons.push(...userIcons)
+
       res.send(icons)
     } catch (err) {
       console.error('Error al leer la carpeta:', err)

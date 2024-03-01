@@ -1,7 +1,7 @@
-import { userModel } from '../../models/userModel.js'
-import { desktopModel } from '../../models/desktopModel.js'
-import { getAuth } from 'firebase-admin/auth'
 import admin from 'firebase-admin'
+import { getAuth } from 'firebase-admin/auth'
+import { desktopModel } from '../../models/desktopModel.js'
+import { userModel } from '../../models/userModel.js'
 
 const serviceAccount = {
   type: process.env.FBADMIN_TYPE,
@@ -175,7 +175,7 @@ export const checkUserSession = async (req, res, next) => {
     .verifySessionCookie(sessionCookie, true /** checkRevoked */)
     .then(decodedClaims => {
       if (decodedClaims.email === 'sergiadn@hotmail.com') {
-        req.user = { name: 'SergioSR' }
+        req.user = { name: 'sergiadn@hotmail.com' }
         // Estamos logeados con la cuenta de sergiadn@hotmail, pero con el nombre de sergiadn335@gmail.com (SergioSR) y por lo tanto sus datos
         console.log(`${logMessage} --> Usuario con email ${decodedClaims.email} autenticado correctamente como ${req.user.name}`)
       } else {

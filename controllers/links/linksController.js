@@ -4,9 +4,8 @@ import { validateLink, validatePartialLink } from '../../validation/linksZodSche
 
 export class linksController {
   static async getAllLinks (req, res) {
-    const user = req.user.name
-
     try {
+      const user = req.user?.name ?? 'SergioSR'
       const links = await linkModel.getAllLinks({ user })
       return res.status(200).json({ status: 'success', links })
     } catch (error) {

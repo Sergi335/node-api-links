@@ -1,12 +1,13 @@
 import express from 'express'
-import { desktopController } from '../../controllers/desktops/desktopsController.js'
+import { DesktopController } from '../../controllers/desktops/desktopsController.js'
 
+const desktopControllerInstance = new DesktopController({ user: process.env.TEST_USER })
 export const desktopsRouter = express.Router()
 
-desktopsRouter.get('/', desktopController.getAllDesktops)
-desktopsRouter.get('/fix/ok', desktopController.testDummyData)
+desktopsRouter.get('/', desktopControllerInstance.getAllDesktops)
+desktopsRouter.get('/fix/ok', desktopControllerInstance.testDummyData)
 
-desktopsRouter.post('/', desktopController.createDesktop)
-desktopsRouter.patch('/', desktopController.editDesktop)
-desktopsRouter.patch('/setorder', desktopController.setDesktopsOrder)
-desktopsRouter.delete('/', desktopController.deleteDesktop)
+desktopsRouter.post('/', desktopControllerInstance.createDesktop)
+desktopsRouter.patch('/', desktopControllerInstance.editDesktop)
+desktopsRouter.patch('/setorder', desktopControllerInstance.setDesktopsOrder)
+desktopsRouter.delete('/', desktopControllerInstance.deleteDesktop)
