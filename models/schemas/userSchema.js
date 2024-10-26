@@ -33,6 +33,9 @@ const UsersSchema = new Schema({
   },
   lastBackupUrl: {
     type: String
+  },
+  quota: {
+    type: Number
   }
 }, {
   timestamps: true,

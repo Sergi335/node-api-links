@@ -2,6 +2,7 @@ import admin from 'firebase-admin'
 import { getAuth } from 'firebase-admin/auth'
 import { desktopModel } from '../../models/desktopModel.js'
 import { userModel } from '../../models/userModel.js'
+import { storageController } from '../storage/storageController.js'
 
 const serviceAccount = {
   type: process.env.FBADMIN_TYPE,
@@ -29,20 +30,24 @@ export class usersController {
         res.send(user)
       } else {
         const googleUser = await getAuth().getUser(req.body.uid)
-        const nickname = googleUser.realName || `user${Math.floor(Math.random() * 10000000000)}`
+        const nickname = googleUser.displayName || `user${Math.floor(Math.random() * 10000000000)}`
         console.log(googleUser)
         const user = {
           name: nickname,
-          realName: googleUser.realName,
+          realName: googleUser.displayName,
           email: googleUser.email,
           newUser: true,
-          profileImage: googleUser.photoURL
+          profileImage: googleUser.photoURL,
+          quota: 0,
+          signMethod: 'google',
+          googleId: googleUser.uid
         }
         const newUser = await userModel.createUser({ user })
-        // const test = await desktopModel.createDummyContent({ user: newUser.email })
-        // console.log('🚀 ~ file: authController.js:42 ~ usersController ~ googleLogin ~ test:', test)
+        const test = await desktopModel.createDummyContent({ user: newUser.email })
+        console.log('🚀 ~ file: authController.js:42 ~ usersController ~ googleLogin ~ test:', test)
 
-        res.send({ message: 'Usuario creado correctamente', newUser })
+        // res.send({ message: 'Usuario creado correctamente', newUser })
+        res.send(newUser)
       }
     } else {
       res.send({ error: 'No se ha podido obtener el email del usuario' })
@@ -65,11 +70,12 @@ export class usersController {
       getAuth()
         .getUser(req.body.uid)
         .then(async (userRecord) => {
-          const nickname = req.body.nickname || `user${Math.floor(Math.random() * 100000000000000000n)}`
+          const nickname = req.body.nickname || `user${Math.floor(Math.random() * 10000000)}`
           // See the UserRecord reference doc for the contents of userRecord.
           const userData = JSON.parse(JSON.stringify(userRecord.toJSON()))
           userData.name = nickname
           userData.newUser = true
+          userData.quota = 0
           console.log(userData)
           const user = await userModel.createUser({ user: userData })
           const test = await desktopModel.createDummyContent({ user: user.email })
@@ -110,6 +116,7 @@ export class usersController {
     try {
       const { email } = req.body
       const data = await desktopModel.deleteUserData({ user: email })
+      await storageController.deleteAllUserFiles({ user: email })
       res.send({ status: 'success', data })
     } catch (error) {
       console.log(error)

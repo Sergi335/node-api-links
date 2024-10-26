@@ -34,6 +34,10 @@ const LinkSchema = new Schema({
   },
   images: {
     type: Array
+  },
+  bookmark: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true,

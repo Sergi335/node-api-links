@@ -14,7 +14,8 @@ const linkZodSchema = z.object({
   orden: z.number().min(0).int().default(0),
   user: z.string().min(1).max(250),
   notes: z.string().optional(),
-  images: z.array(z.string().url()).optional()
+  images: z.array(z.string().url()).optional(),
+  bookmark: z.boolean().optional()
 })
 
 export function validateLink (link) {
