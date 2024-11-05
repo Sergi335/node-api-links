@@ -161,6 +161,36 @@ export class linkModel {
     return data
   }
 
+  static async setBookMarksOrder ({ user, links }) {
+    const updateOperations = links.map(([linkId, order]) => ({
+      updateOne: {
+        filter: { _id: linkId, user },
+        update: { $set: { bookmarkOrder: order } }
+      }
+    }))
+
+    const { result } = await link.bulkWrite(updateOperations)
+    console.log('🚀 ~ linkModel ~ setBookMarksOrder ~ result:', result)
+
+    // Construir el array de objetos
+    const updatedLinks = []
+
+    result.nModified > 0 && updateOperations.forEach((op, index) => {
+      let linkId
+      if (result.upsertedIds) {
+        linkId = result.upsertedIds[index]
+      } else {
+        linkId = links[index][0]
+      }
+      updatedLinks.push({
+        id: linkId,
+        order: links[index][1]
+      })
+    })
+
+    return updatedLinks
+  }
+
   // Elementos son los ids de los elementos hacia o desde el panel al que se mueve el link
   static async sortLinks ({ idpanelOrigen, elementos }) {
     let dataToSort

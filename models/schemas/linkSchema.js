@@ -38,6 +38,14 @@ const LinkSchema = new Schema({
   bookmark: {
     type: Boolean,
     default: false
+  },
+  bookmarkOrder: {
+    type: Number,
+    default: 0
+  },
+  readlist: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true,

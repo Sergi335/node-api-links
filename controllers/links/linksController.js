@@ -139,4 +139,16 @@ export class linksController {
     const data = await linkModel.findDuplicateLinks({ user })
     res.send(data)
   }
+
+  static async setBookMarksOrder (req, res) {
+    const user = req.user.name
+    const { links } = req.body
+    console.log('🚀 ~ linksController ~ setBookMarksOrder ~ links:', links)
+    try {
+      const data = await linkModel.setBookMarksOrder({ user, links })
+      return res.status(200).send({ status: 'success', data })
+    } catch (error) {
+      return res.status(500).send(error)
+    }
+  }
 }
