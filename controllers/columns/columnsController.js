@@ -5,8 +5,8 @@ export class columnsController {
   static async getAllColumns (req, res) {
     const user = req.user.name
     try {
-      const columns = await columnModel.getAllColumns({ user })
-      return res.status(200).json({ status: 'success', columns })
+      const data = await columnModel.getAllColumns({ user })
+      return res.status(200).json({ status: 'success', data })
     } catch (error) {
       return res.status(500).send({ status: 'fail', error })
     }
@@ -18,8 +18,8 @@ export class columnsController {
     console.log('🚀 ~ file: columnsController.js:17 ~ columnsController ~ getColumnByDesktop ~ user:', user)
     console.log(req.params.desktop)
     try {
-      const columns = await columnModel.getColumnByDesktop({ user, escritorio: req.params.desktop })
-      return res.status(200).json(columns)
+      const data = await columnModel.getColumnByDesktop({ user, escritorio: req.params.desktop })
+      return res.status(200).json({ status: 'success', data })
     } catch (error) {
       return res.status(500).send(error)
     }

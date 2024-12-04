@@ -1,6 +1,6 @@
+import mongoose from 'mongoose'
 import columna from './schemas/columnSchema.js'
 import link from './schemas/linkSchema.js'
-import mongoose from 'mongoose'
 
 export class columnModel {
   static async getAllColumns ({ user }) {
@@ -29,7 +29,8 @@ export class columnModel {
   }
 
   static async createColumn ({ user, cleanData }) {
-    const data = await columna.create({ user, ...cleanData })
+    const slug = await this.generateUniqueSlug({ user, name: cleanData.name })
+    const data = await columna.create({ user, ...cleanData, slug })
     return [data]
   }
 
@@ -47,6 +48,11 @@ export class columnModel {
     if (cleanData.escritorio !== undefined) {
       const order = await columna.find({ escritorio: cleanData.escritorio, user })
       cleanData.order = order.length
+    }
+    // Si se ha cambiado el nombre de la columna actualizamos el slug
+    if (cleanData.name !== undefined) {
+      const slug = await this.generateUniqueSlug({ user, name: cleanData.name })
+      cleanData.slug = slug
     }
     const session = await mongoose.startSession()
     try {
@@ -147,7 +153,67 @@ export class columnModel {
     }
   }
 
+  static async generateUniqueSlug ({ user, name }) {
+    let slug = this.slugify(name)
+    const baseSlug = slug
+    let counter = 0
+
+    // Busca si el slug ya existe
+    let exists = await columna.findOne({ user, slug })
+
+    // Mientras exista, genera un nuevo slug incrementando el contador
+    while (exists) {
+      counter++
+      slug = `${baseSlug}_${counter}`
+      exists = await columna.findOne({ user, slug })
+    }
+
+    return slug // Retorna el slug único generado
+  }
+
+  static slugify (text) {
+    return text.toString().toLowerCase()
+      .trim() // Elimina espacios en blanco al inicio y al final
+      .replace(/\s+/g, '-') // Reemplaza espacios por guiones
+      .replace(/[^\w-]+/g, '') // Elimina caracteres no alfanuméricos (excepto guiones)
+      .replace(/--+/g, '-') // Reemplaza múltiples guiones por uno solo
+      .replace(/^-+/, '') // Elimina guiones al inicio
+      .replace(/-+$/, '') // Elimina guiones al final
+  }
+
   // No se usa
+  static async updateSlugs () {
+    try {
+      // Obtener todas las columnas existentes -> user
+      const columns = await columna.find({})
+
+      // Crear un mapa para rastrear los slugs únicos
+      const slugMap = {}
+
+      for (const column of columns) {
+        // Convertir el nombre a formato de slug
+        const baseSlug = this.slugify(column.name)
+        let slug = baseSlug
+
+        // Generar un slug único si ya existe en el mapa
+        if (Object.prototype.hasOwnProperty.call(slugMap, baseSlug)) {
+          slugMap[baseSlug]++
+          slug = `${baseSlug}_${slugMap[baseSlug]}`
+        } else {
+          slugMap[baseSlug] = 0 // Inicializa el contador para este slug
+        }
+
+        // Actualizar el slug en el documento
+        column.slug = slug
+        await column.save() // Guarda los cambios en la base de datos
+      }
+
+      console.log('Slugs actualizados correctamente para todas las columnas.')
+    } catch (error) {
+      console.error('Error al actualizar los slugs:', error)
+    }
+  }
+
   static async moveColumn ({ user, id, deskDestino, order }) {
     const data = await columna.find({ escritorio: deskDestino, user })
 

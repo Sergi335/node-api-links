@@ -15,6 +15,10 @@ const ColumnSchema = new Schema({
   },
   user: {
     type: String
+  },
+  slug: {
+    type: String,
+    unique: true
   }
 }, {
   timestamps: true,

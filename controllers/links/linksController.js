@@ -6,8 +6,8 @@ export class linksController {
   static async getAllLinks (req, res) {
     try {
       const user = req.user?.name ?? 'SergioSR'
-      const links = await linkModel.getAllLinks({ user })
-      return res.status(200).json({ status: 'success', links })
+      const data = await linkModel.getAllLinks({ user })
+      return res.status(200).json({ status: 'success', data })
     } catch (error) {
       return res.status(500).send(error)
     }
@@ -31,8 +31,8 @@ export class linksController {
     console.log('Entramos en by desktop')
     console.log(req.query)
     try {
-      const links = await linkModel.getLinksByDesktop({ user, escritorio: req.query.desk })
-      return res.status(200).json({ status: 'success', links })
+      const data = await linkModel.getLinksByDesktop({ user, escritorio: req.query.desk })
+      return res.status(200).json({ status: 'success', data })
     } catch (error) {
       return res.status(500).send(error)
     }
