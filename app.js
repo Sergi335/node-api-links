@@ -36,6 +36,9 @@ if (env === 'test') {
   app.use('/desktops', checkUserSession, desktopsRouter)
   app.use('/storage', checkUserSession, storageRouter)
   app.get('/search', checkUserSession, searchController.searchLinks)
+  app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' })
+  })
 }
 
 dbConnect()
