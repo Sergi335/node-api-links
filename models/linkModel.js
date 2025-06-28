@@ -162,33 +162,22 @@ export class linkModel {
   }
 
   static async setBookMarksOrder ({ user, links }) {
-    const updateOperations = links.map(([linkId, order]) => ({
-      updateOne: {
-        filter: { _id: linkId, user },
-        update: { $set: { bookmarkOrder: order } }
-      }
-    }))
+    try {
+      const updateOperations = links.map(([linkId, order]) => ({
+        updateOne: {
+          filter: { _id: linkId, user },
+          update: { $set: { bookmarkOrder: order } }
+        }
+      }))
 
-    const { result } = await link.bulkWrite(updateOperations)
-    console.log('🚀 ~ linkModel ~ setBookMarksOrder ~ result:', result)
+      await link.bulkWrite(updateOperations)
 
-    // Construir el array de objetos
-    const updatedLinks = []
-
-    result.nModified > 0 && updateOperations.forEach((op, index) => {
-      let linkId
-      if (result.upsertedIds) {
-        linkId = result.upsertedIds[index]
-      } else {
-        linkId = links[index][0]
-      }
-      updatedLinks.push({
-        id: linkId,
-        order: links[index][1]
-      })
-    })
-
-    return updatedLinks
+      // Devuelve directamente el array recibido, ya que refleja el nuevo orden
+      return links.map(([id, order]) => ({ id, order }))
+    } catch (error) {
+      console.error('Error en setBookMarksOrder:', error)
+      throw error
+    }
   }
 
   // Elementos son los ids de los elementos hacia o desde el panel al que se mueve el link
